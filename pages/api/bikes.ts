@@ -1,4 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import Cors from "cors";
+
+const cors = Cors({
+  methods: ["POST", "GET", "HEAD"],
+});
+
+function runMiddleware(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  fn: Function
+) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result: any) => {
+      if (result instanceof Error) {
+        return reject(result);
+      }
+
+      return resolve(result);
+    });
+  });
+}
 
 type Data = {
   id: string;
@@ -10,10 +31,11 @@ type Data = {
   price: number;
 };
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data[]>
 ) {
+  await runMiddleware(req, res, cors);
   res.status(200).json([
     {
       id: "2922c286-16cd-4d43-ab98-c79f698aeab0",
